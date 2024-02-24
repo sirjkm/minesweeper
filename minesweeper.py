@@ -22,8 +22,9 @@ class Board:
 
             if board[row][col] == '*':
                 continue
-        board[row][col] = '*'
-        bombs_planted += 1
+
+            board[row][col] = '*'
+            bombs_planted += 1
 
         return board
 
@@ -46,18 +47,19 @@ class Board:
         return num_neighboring_bombs
 
     def dig(self, row, col):
-        self.dug.add((row, col))
+        self.dug.add((row, col)) # keep track that we dug here
 
         if self.board[row][col] == '*':
             return False
         elif self.board[row][col] > 0:
             return True
-        
+
+        # self.board[row][col] == 0
         for r in range(max(0, row-1), min(self.dim_size-1, row+1)+1):
             for c in range(max(0, col-1), min(self.dim_size-1, col+1)+1):
-                if (r,c) in self.dug:
+                if (r, c) in self.dug:
                     continue
-                self.dig(r,c)
+                self.dig(r, c)
 
         return True
 
@@ -69,9 +71,8 @@ class Board:
                     visible_board[row][col] = str(self.board[row][col])
                 else:
                     visible_board[row][col] = ' '
-
+        
         string_rep = ''
-
         widths = []
         for idx in range(self.dim_size):
             columns = map(lambda x: x[idx], visible_board)
@@ -81,15 +82,15 @@ class Board:
                 )
             )
 
-        indicies = [i for i in range(self.dim_size)]
-        indicies_row = ' '
+        indices = [i for i in range(self.dim_size)]
+        indices_row = '   '
         cells = []
-        for idx, col in enumerate(indicies):
+        for idx, col in enumerate(indices):
             format = '%-' + str(widths[idx]) + "s"
             cells.append(format % (col))
-        indicies_row += ' '.join(cells)
-        indicies_row += ' \n'
-
+        indices_row += '  '.join(cells)
+        indices_row += '  \n'
+        
         for i in range(len(visible_board)):
             row = visible_board[i]
             string_rep += f'{i} |'
@@ -101,13 +102,13 @@ class Board:
             string_rep += ' |\n'
 
         str_len = int(len(string_rep) / self.dim_size)
-        string_rep = indicies_row + '-'*str_len + '\n' + string_rep + '-'*str_len
+        string_rep = indices_row + '-'*str_len + '\n' + string_rep + '-'*str_len
 
         return string_rep
-        
 
 def play(dim_size=10, num_bombs=10):
     board = Board(dim_size, num_bombs)
+    safe = True 
 
     while len(board.dug) < board.dim_size ** 2 - num_bombs:
         print(board)
@@ -117,14 +118,14 @@ def play(dim_size=10, num_bombs=10):
             print("Invalid location. Try again.")
             continue
 
-        safe = board.dig(row,col)
+        safe = board.dig(row, col)
         if not safe:
             break
 
     if safe:
-        print("Congrats, you are victorious!")
+        print("CONGRATULATIONS!!!! YOU ARE VICTORIOUS!")
     else:
-        print("Sorry, game over!")
+        print("SORRY GAME OVER :(")
         board.dug = [(r,c) for r in range(board.dim_size) for c in range(board.dim_size)]
         print(board)
 
